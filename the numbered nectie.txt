@@ -1,0 +1,348 @@
+INCLUDE Irvine32.inc
+
+.data
+  randomNumber  DWORD ?          ; Store the generated random number
+  userGuess	    DWORD ?
+  try           DWORD 7
+  prompt        BYTE  "Guess a number between 1 and 100: ", 0
+  correctMsg    BYTE  "Congratulations! You guessed the correct number.", 0
+  lowMsg        BYTE  "Too low. Try again.", 0
+  highMsg       BYTE  "Too high. Try again.", 0
+  resultNum     BYTE  "The number was ",0
+
+  hangmanPic1   BYTE '      +---------------------------------+',13,10        ;13 is for carraige return and 10 for line feed(new line)
+                BYTE '      |       THE NUMBERED NECTIE       |',13,10
+                BYTE '      |               X_X               |',13,10
+                BYTE '      +---------------------------------+',13,10
+                BYTE '      |                |                |',0
+
+  hangmanPic2   BYTE '      |                                 |',0
+  hangmanPic3   BYTE '      |                                 |',0
+  hangmanPic4   BYTE '      |                                 |',0
+  hangmanPic5   BYTE '      |                                 |',0
+  hangmanPic6   BYTE '      |                                 |',0
+
+  hangmanPic7   BYTE '      |                                 |',13,10
+                BYTE '      |        +---------------+        |',13,10
+                BYTE '      |        |               |        |',13,10
+                BYTE '      +---------------------------------+',13,10
+                BYTE '      |        REMINING TRIES: ',0
+  hangmantries  BYTE '        |',13,10
+                BYTE '      +---------------------------------+',0
+
+
+  endingLine    BYTE '      -----------------------------------',0
+  hangmanface   BYTE '      |                O                |',0
+  hangmanbody1  BYTE '      |                |                |',0
+  hangmanlefta  BYTE '      |               /|                |',0
+  hangmanrighta BYTE '      |               /|\               |',0
+  hangmanbody2  BYTE '      |                |                |',0
+  hangmanleftl  BYTE '      |               /                 |',0
+  hangmanrightl BYTE '      |               / \               |',0
+
+  
+.code
+main PROC
+
+  call Randomize	    		; Seed the random number generator (changes on each run)
+  mov eax, 50    			; Generate a random number between 0 and 99
+  call RandomRange
+  inc eax					    ; Increment the result by 1 to get 1 to 100 range 
+  mov randomNumber, eax		    ; Store the random number in a variable
+  mov ecx, try
+  ;call clrscr
+  jmp draworiginalhangman
+
+guessLoop:
+
+    mov edx, OFFSET prompt      ; Read user's guess
+    call WriteString
+    call ReadInt
+    mov userGuess, eax
+
+    cmp eax, randomNumber       ; Compare user's guess with the random number
+    je  correctGuess
+    jg  tooHigh
+    jl  tooLow
+
+tooLow:                         ; Display "Too low" message
+    
+    mov edx, OFFSET lowMsg
+    call WriteString
+    call Crlf
+    ;call clrscr
+    jmp reduceTries
+
+tooHigh:                        ; Display "Too high" message
+    mov edx, OFFSET highMsg
+    call WriteString
+    call Crlf
+    ;call clrscr
+    jmp reduceTries
+
+correctGuess:                   ; Display "Congratulations" message
+    mov edx, OFFSET correctMsg
+    call WriteString
+    call Crlf
+    jmp endProgram
+
+reduceTries:                    ; Decrement tries count
+    sub ecx, 1
+    jmp drawHangman
+
+outOfTries:                     ; Display "Out of tries" message and reveal the random number
+    mov edx, OFFSET resultNum
+    call WriteString
+    mov eax, randomNumber
+    call WriteDec
+    call Crlf
+    jmp endProgram
+
+endProgram:                     ; Exit the program
+    call Crlf
+    call WaitMsg
+    exit
+
+drawHangman:
+    cmp ecx, 0                  ; Check if out of tries
+    jz draw7
+    cmp ecx, 1
+    je draw6
+    cmp ecx, 2
+    je draw5
+    cmp ecx, 3
+    je draw4
+    cmp ecx, 4
+    je draw3
+    cmp ecx, 5
+    je draw2
+    cmp ecx, 6
+    je draw1
+
+draworiginalhangman:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic2
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic3
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic4
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw1:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic3
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic4
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw2:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanbody1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic4
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw3:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanlefta
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic4
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw4:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanrighta
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic4
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw5:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanrighta
+    call WriteString
+    call Crlf
+    LEA edx, hangmanbody2
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic5
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw6:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanrighta
+    call WriteString
+    call Crlf
+    LEA edx, hangmanbody2
+    call WriteString
+    call Crlf
+    LEA edx, hangmanleftl
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp guessLoop
+
+draw7:
+    LEA edx, hangmanPic1
+    call WriteString
+    call Crlf
+    LEA edx, hangmanface
+    call WriteString
+    call Crlf
+    LEA edx, hangmanrighta
+    call WriteString
+    call Crlf
+    LEA edx, hangmanbody2
+    call WriteString
+    call Crlf
+    LEA edx, hangmanrightl
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic6
+    call WriteString
+    call Crlf
+    LEA edx, hangmanPic7
+    call WriteString
+    mov eax, ecx
+    call WriteDec
+    LEA edx, hangmantries
+    call writestring 
+    call crlf
+    jmp outOfTries
+
+
+main ENDP 
+END main
